@@ -15,8 +15,8 @@ class PostRoutes {
     }
 
     private async getPost(req: Request, res:Response, next:NextFunction):Promise<void> {
-        const url = req.params.url;
-        const post = await Post.findOne({ url: url});
+        const { url } = req.params;
+        const post = await Post.findOne({ url });
         res.json(post);
     }
 

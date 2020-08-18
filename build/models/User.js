@@ -1,26 +1,28 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = require("mongoose");
-const PostSchema = new mongoose_1.Schema({
-    title: {
-        type: String,
-        required: true
-    },
-    url: {
+const UserSchema = new mongoose_1.Schema({
+    username: {
         type: String,
         required: true,
-        lowercase: true,
         unique: true
     },
-    content: {
+    email: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    password: {
         type: String,
         required: true
     },
-    image: String,
-    createAt: {
+    createdAt: {
         type: Date,
         default: Date.now()
     },
-    updateAt: Date
+    posts: [{
+            type: mongoose_1.Schema.Types.ObjectId,
+            ref: 'post'
+        }]
 });
-exports.default = mongoose_1.model('post', PostSchema);
+exports.default = mongoose_1.model('user', UserSchema);

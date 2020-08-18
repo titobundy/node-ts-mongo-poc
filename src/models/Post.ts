@@ -18,7 +18,7 @@ const PostSchema = new Schema({
     image: String,
     createAt: {
         type: Date,
-        default: Date.now
+        default: Date.now()
     },
     updateAt: Date
 });

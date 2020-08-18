@@ -28,3 +28,37 @@ Content-Type: application/json
 
 ### Delete Post By url
 DELETE http://localhost:3000/api/posts/url-2
+
+# Crud Users
+
+### Get All User
+GET http://localhost:3000/api/users
+
+### Get User By username
+GET http://localhost:3000/api/users/hdiaz
+
+### Create New User
+POST http://localhost:3000/api/users
+Content-Type: application/json
+
+{
+    "username" : "hdiaz",
+    "email": "hdiaz@nectia.com",
+    "password": "hdiaz123"
+}
+
+### Update Post By url
+PUT http://localhost:3000/api/users/hdiaz
+Content-Type: application/json
+
+{
+    "username" : "hdiaz",
+    "email": "hdiaz@gmail.com",
+    "password": "hdiaz1234",
+    "posts": [
+        "5f3c08ff6e0ae828fd924fc3"
+    ]
+}
+
+### Delete Post By url
+DELETE http://localhost:3000/api/users/hdiaz

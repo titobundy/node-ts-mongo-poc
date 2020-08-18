@@ -12,6 +12,7 @@ require("dotenv/config");
 const DbMongoClient_1 = __importDefault(require("./config/DbMongoClient"));
 const IndexRoutes_1 = __importDefault(require("./routes/IndexRoutes"));
 const PostRoutes_1 = __importDefault(require("./routes/PostRoutes"));
+const UserRoutes_1 = __importDefault(require("./routes/UserRoutes"));
 class Server {
     constructor() {
         this.app = express_1.default();
@@ -32,6 +33,7 @@ class Server {
     routes() {
         this.app.use(IndexRoutes_1.default);
         this.app.use('/api/posts', PostRoutes_1.default);
+        this.app.use('/api/users', UserRoutes_1.default);
     }
     start() {
         this.app.listen(this.app.get('port'), () => {
