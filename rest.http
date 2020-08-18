@@ -1,0 +1,30 @@
+### Get All Posts
+GET http://localhost:3000/api/posts
+
+### Get Post By url
+GET http://localhost:3000/api/posts/url
+
+### Create New Post
+POST http://localhost:3000/api/posts
+Content-Type: application/json
+
+{
+    "title" : "titulo 2",
+    "url": "url-2",
+    "content": "contenido",
+    "image" : "imagen"
+}
+
+### Update Post By url
+PUT http://localhost:3000/api/posts/url-2
+Content-Type: application/json
+
+{
+    "title" : "titulo 2",
+    "url": "url-2",
+    "content": "contenido",
+    "image" : "imagen"
+}
+
+### Delete Post By url
+DELETE http://localhost:3000/api/posts/url-2
