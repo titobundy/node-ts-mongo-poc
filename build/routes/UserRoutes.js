@@ -13,6 +13,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
+const mongoose_1 = require("mongoose");
+const http_errors_1 = __importDefault(require("http-errors"));
 const User_1 = __importDefault(require("../models/User"));
 class UserRoutes {
     constructor() {
@@ -21,36 +23,84 @@ class UserRoutes {
     }
     getAllUser(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
-            const users = yield User_1.default.find();
-            res.json(users);
+            try {
+                const users = yield User_1.default.find();
+                res.json(users);
+            }
+            catch (error) {
+                next(error);
+            }
         });
     }
     getUser(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { username } = req.params;
-            const user = yield User_1.default.findOne({ username }).populate('posts', 'title url -_id');
-            res.json(user);
+            try {
+                const { username } = req.params;
+                const user = yield User_1.default.findOne({ username }).populate('posts', 'title url -_id');
+                if (!user) {
+                    throw http_errors_1.default(404, 'User does not exist.');
+                }
+                res.json(user);
+            }
+            catch (error) {
+                if (error instanceof mongoose_1.Error.CastError) {
+                    next(http_errors_1.default(400, 'Invalid user id'));
+                    return;
+                }
+                next(error);
+            }
         });
     }
     createUser(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
-            const user = new User_1.default(req.body);
-            yield user.save();
-            res.json(user);
+            try {
+                const user = new User_1.default(req.body);
+                yield user.save();
+                res.json(user);
+            }
+            catch (error) {
+                if (error.name === 'ValidationError') {
+                    return next(http_errors_1.default(422, error.message));
+                }
+                next(error);
+            }
         });
     }
     updateUser(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { username } = req.params;
-            const user = yield User_1.default.findOneAndUpdate({ username }, req.body, { new: true });
-            res.json(user);
+            try {
+                const { username } = req.params;
+                const user = yield User_1.default.findOneAndUpdate({ username }, req.body, { new: true });
+                if (!user) {
+                    throw http_errors_1.default(404, 'User does not exist.');
+                }
+                res.json(user);
+            }
+            catch (error) {
+                if (error instanceof mongoose_1.Error.CastError) {
+                    return next(http_errors_1.default(400, 'Invalid user id'));
+                }
+                next(error);
+            }
         });
     }
     deleteUser(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { username } = req.params;
-            const user = yield User_1.default.findOneAndDelete({ username });
-            res.json(user);
+            try {
+                const { username } = req.params;
+                const user = yield User_1.default.findOneAndDelete({ username });
+                if (!user) {
+                    throw http_errors_1.default(404, 'User does not exist.');
+                }
+                res.json(user);
+            }
+            catch (error) {
+                if (error instanceof mongoose_1.Error.CastError) {
+                    next(http_errors_1.default(400, 'Invalid user id'));
+                    return;
+                }
+                next(error);
+            }
         });
     }
     routes() {

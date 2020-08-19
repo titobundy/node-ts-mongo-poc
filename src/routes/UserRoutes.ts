@@ -1,4 +1,6 @@
 import { Request, Response, NextFunction, Router} from 'express';
+import { Error } from 'mongoose';
+import createError from 'http-errors';
 import User from '../models/User';
 
 class UserRoutes {
@@ -10,33 +12,78 @@ class UserRoutes {
     }
 
     private async getAllUser(req: Request, res:Response, next:NextFunction):Promise<void> {
-        const users = await User.find();
-        res.json(users);
+        try {
+            const users = await User.find();
+            res.json(users);            
+        } catch (error) {
+            next(error);            
+        }
     }
 
     private async getUser(req: Request, res:Response, next:NextFunction):Promise<void> {
-        const { username } = req.params;
-        const user = await User.findOne({ username }).populate('posts', 'title url -_id');
-        res.json(user);
+        try {
+            const { username } = req.params;
+            const user = await User.findOne({ username }).populate('posts', 'title url -_id');
+            
+            if(!user) {
+                throw createError(404, 'User does not exist.');
+            }
+            res.json(user);
+        } catch (error) {
+            if(error instanceof Error.CastError) {
+                next(createError(400, 'Invalid user id'));
+                return;
+            }
+            next(error);
+        }
     }
 
     private async createUser(req: Request, res: Response, next:NextFunction):Promise<void> {
-        const user = new User(req.body);
-        await user.save();
-        res.json(user);
+        try {
+            const user = new User(req.body);
+            await user.save();
+            res.json(user);            
+        } catch (error) {
+            if(error.name === 'ValidationError') {
+                return next(createError(422, error.message));
+            }
+            next(error);            
+        }
     }
 
     private async updateUser(req: Request, res: Response, next:NextFunction):Promise<void> {
-        const { username } = req.params;
-        const user = await User.findOneAndUpdate({ username }, req.body, { new: true});
-        res.json(user);
+        try {
+            const { username } = req.params;
+            const user = await User.findOneAndUpdate({ username }, req.body, { new: true});
+            if(!user) {
+                throw createError(404, 'User does not exist.');
+            }
+            res.json(user);
+            
+        } catch (error) {
+            if(error instanceof Error.CastError) {
+                return next(createError(400, 'Invalid user id'));
+            }
+            next(error);             
+        }
 
     }
 
     private async deleteUser(req: Request, res: Response, next:NextFunction):Promise<void> {
-        const { username } = req.params;
-        const user = await User.findOneAndDelete({ username });
-        res.json(user);
+        try {            
+            const { username } = req.params;
+            const user = await User.findOneAndDelete({ username });
+            if(!user) {
+                throw createError(404, 'User does not exist.');
+            }            
+            res.json(user);
+        } catch (error) {
+            if(error instanceof Error.CastError) {
+                next(createError(400, 'Invalid user id'));
+                return;
+            }
+            next(error);               
+        }
     }
 
     public routes() {

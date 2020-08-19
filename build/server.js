@@ -9,6 +9,7 @@ const helmet_1 = __importDefault(require("helmet"));
 const compression_1 = __importDefault(require("compression"));
 const cors_1 = __importDefault(require("cors"));
 require("dotenv/config");
+const http_errors_1 = __importDefault(require("http-errors"));
 const DbMongoClient_1 = __importDefault(require("./config/DbMongoClient"));
 const IndexRoutes_1 = __importDefault(require("./routes/IndexRoutes"));
 const PostRoutes_1 = __importDefault(require("./routes/PostRoutes"));
@@ -18,6 +19,7 @@ class Server {
         this.app = express_1.default();
         this.config();
         this.routes();
+        this.errorMiddleware();
     }
     config() {
         DbMongoClient_1.default.connect();
@@ -34,6 +36,21 @@ class Server {
         this.app.use(IndexRoutes_1.default);
         this.app.use('/api/posts', PostRoutes_1.default);
         this.app.use('/api/users', UserRoutes_1.default);
+    }
+    errorMiddleware() {
+        this.app.use((req, res, next) => {
+            next(http_errors_1.default(404, 'Not found'));
+        });
+        const errHandler = (err, req, res, next) => {
+            res.status(err.status || 500);
+            res.send({
+                error: {
+                    status: err.status || 500,
+                    message: err.message
+                }
+            });
+        };
+        this.app.use(errHandler);
     }
     start() {
         this.app.listen(this.app.get('port'), () => {

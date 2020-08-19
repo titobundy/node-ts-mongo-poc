@@ -1,3 +1,5 @@
+############################################### CRUD POSTS ###############################################
+
 ### Get All Posts
 GET http://localhost:3000/api/posts
 
@@ -27,9 +29,9 @@ Content-Type: application/json
 }
 
 ### Delete Post By url
-DELETE http://localhost:3000/api/posts/url-2
+DELETE http://localhost:3000/api/posts/url
 
-# Crud Users
+############################################### CRUD USERS ###############################################
 
 ### Get All User
 GET http://localhost:3000/api/users
@@ -42,8 +44,8 @@ POST http://localhost:3000/api/users
 Content-Type: application/json
 
 {
-    "username" : "hdiaz",
-    "email": "hdiaz@nectia.com",
+    "username" : "hdiaz2",
+    "email": "hdiaz2@nectia.com",
     "password": "hdiaz123"
 }
 
@@ -52,11 +54,9 @@ PUT http://localhost:3000/api/users/hdiaz
 Content-Type: application/json
 
 {
-    "username" : "hdiaz",
-    "email": "hdiaz@gmail.com",
-    "password": "hdiaz1234",
     "posts": [
-        "5f3c08ff6e0ae828fd924fc3"
+        "5f3d85091db58e73d39e4b72",
+        "5f3d85101db58e73d39e4b73"
     ]
 }
 

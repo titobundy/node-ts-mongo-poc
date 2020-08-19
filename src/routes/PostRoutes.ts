@@ -1,4 +1,6 @@
 import { Request, Response, NextFunction, Router} from 'express';
+import { Error } from 'mongoose';
+import createError from 'http-errors';
 import Post from '../models/Post';
 
 class PostRoutes {
@@ -10,33 +12,75 @@ class PostRoutes {
     }
 
     private async getAllPost(req: Request, res:Response, next:NextFunction):Promise<void> {
-        const posts = await Post.find();
-        res.json(posts);
+        try {
+            const posts = await Post.find();
+            res.json(posts);            
+        } catch (error) {
+            next(error);
+        }
     }
 
     private async getPost(req: Request, res:Response, next:NextFunction):Promise<void> {
-        const { url } = req.params;
-        const post = await Post.findOne({ url });
-        res.json(post);
+        try {
+            const { url } = req.params;
+            const post = await Post.findOne({ url });
+            if(!post) {
+                throw createError(404, 'Post does not exist.');
+            }
+            res.json(post);            
+        } catch (error) {
+            if(error instanceof Error.CastError) {
+                next(createError(400, 'Invalid post id'));
+                return;
+            }
+            next(error);
+        }
     }
 
     private async createPost(req: Request, res: Response, next:NextFunction):Promise<void> {
-        const post = new Post(req.body);
-        await post.save();
-        res.json(post);
+        try {
+            const post = new Post(req.body);
+            await post.save();
+            res.json(post);            
+        } catch (error) {     
+            if(error.name === 'ValidationError') {
+                return next(createError(422, error.message));
+            }
+            next(error);
+        }
     }
 
     private async updatePost(req: Request, res: Response, next:NextFunction):Promise<void> {
-        const { url } = req.params;
-        const post = await Post.findOneAndUpdate({ url }, req.body, { new: true});
-        res.json(post);
-
+        try {            
+            const { url } = req.params;
+            const post = await Post.findOneAndUpdate({ url }, req.body, { new: true});
+            if(!post) {
+                throw createError(404, 'Post does not exist.');
+            }
+            res.json(post);
+        } catch (error) {            
+            if(error instanceof Error.CastError) {
+                return next(createError(400, 'Invalid post id'));
+            }
+            next(error);            
+        }
     }
 
     private async deletePost(req: Request, res: Response, next:NextFunction):Promise<void> {
-        const { url } = req.params;
-        const post = await Post.findOneAndDelete({ url });
-        res.json(post);
+        try {
+            const { url } = req.params;
+            const post = await Post.findOneAndDelete({ url });
+            if(!post) {
+                throw createError(404, 'Post does not exist.');
+            }
+            res.json(post);
+        } catch (error) {
+            if(error instanceof Error.CastError) {
+                next(createError(400, 'Invalid post id'));
+                return;
+            }
+            next(error);            
+        }
     }
 
     public routes() {

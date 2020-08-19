@@ -8,7 +8,7 @@ class IndexRoutes {
     }
     routes() {
         this.router.get('/', (req, res) => {
-            res.send('Router');
+            res.send('Home');
         });
     }
 }

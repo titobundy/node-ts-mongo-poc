@@ -11,7 +11,7 @@ class DbMongoClient {
             user: process.env.DB_USER,
             pass: process.env.DB_PASS,
             useNewUrlParser: true,
-            useFindAndModify: true,
+            useFindAndModify: false,
             useCreateIndex: true,
             useUnifiedTopology: true
         })

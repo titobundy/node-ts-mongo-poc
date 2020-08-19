@@ -13,6 +13,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
+const mongoose_1 = require("mongoose");
+const http_errors_1 = __importDefault(require("http-errors"));
 const Post_1 = __importDefault(require("../models/Post"));
 class PostRoutes {
     constructor() {
@@ -21,36 +23,84 @@ class PostRoutes {
     }
     getAllPost(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
-            const posts = yield Post_1.default.find();
-            res.json(posts);
+            try {
+                const posts = yield Post_1.default.find();
+                res.json(posts);
+            }
+            catch (error) {
+                next(error);
+            }
         });
     }
     getPost(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { url } = req.params;
-            const post = yield Post_1.default.findOne({ url });
-            res.json(post);
+            try {
+                const { url } = req.params;
+                const post = yield Post_1.default.findOne({ url });
+                if (!post) {
+                    throw http_errors_1.default(404, 'Post does not exist.');
+                }
+                res.json(post);
+            }
+            catch (error) {
+                if (error instanceof mongoose_1.Error.CastError) {
+                    next(http_errors_1.default(400, 'Invalid post id'));
+                    return;
+                }
+                next(error);
+            }
         });
     }
     createPost(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
-            const post = new Post_1.default(req.body);
-            yield post.save();
-            res.json(post);
+            try {
+                const post = new Post_1.default(req.body);
+                yield post.save();
+                res.json(post);
+            }
+            catch (error) {
+                if (error.name === 'ValidationError') {
+                    return next(http_errors_1.default(422, error.message));
+                }
+                next(error);
+            }
         });
     }
     updatePost(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { url } = req.params;
-            const post = yield Post_1.default.findOneAndUpdate({ url }, req.body, { new: true });
-            res.json(post);
+            try {
+                const { url } = req.params;
+                const post = yield Post_1.default.findOneAndUpdate({ url }, req.body, { new: true });
+                if (!post) {
+                    throw http_errors_1.default(404, 'Post does not exist.');
+                }
+                res.json(post);
+            }
+            catch (error) {
+                if (error instanceof mongoose_1.Error.CastError) {
+                    return next(http_errors_1.default(400, 'Invalid post id'));
+                }
+                next(error);
+            }
         });
     }
     deletePost(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { url } = req.params;
-            const post = yield Post_1.default.findOneAndDelete({ url });
-            res.json(post);
+            try {
+                const { url } = req.params;
+                const post = yield Post_1.default.findOneAndDelete({ url });
+                if (!post) {
+                    throw http_errors_1.default(404, 'Post does not exist.');
+                }
+                res.json(post);
+            }
+            catch (error) {
+                if (error instanceof mongoose_1.Error.CastError) {
+                    next(http_errors_1.default(400, 'Invalid post id'));
+                    return;
+                }
+                next(error);
+            }
         });
     }
     routes() {
